@@ -12,7 +12,7 @@ app.use(express.json());
 
 dbConnection();
 
-app.use("/signup", userRoute);
+app.use("/api/v1/user", userRoute);
 
 const PORT = process.env.PORT || 3000;
 
