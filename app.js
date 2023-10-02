@@ -11,6 +11,6 @@ dbConnection();
 app.use(cors());
 // app.use(morgan());
 app.use(express.json());
-app.use("/api/v1/user", newUser);
+app.use("/api/v1/signup", newUser);
 
 app.listen(PORT, () => console.log(`Sever running on Port ${PORT}`));
