@@ -19,3 +19,15 @@ exports.postProduct = async (req, res) => {
     console.log("Error:", err);
   }
 };
+
+exports.getAllProducts = async (req, res) => {
+  const products = await Product.find();
+
+  res.status(200).json({
+    status: "Ok",
+    total: products.length,
+    data: {
+      products,
+    },
+  });
+};

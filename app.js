@@ -8,6 +8,7 @@ const userRoute = require("./ROUTES/userRoute");
 const productRoute = require("./ROUTES/productRoute");
 
 const app = express();
+
 // Middlewares
 app.use(cors());
 app.use(bodyParser.json());
