@@ -16,7 +16,7 @@ app.use(express.json());
 dbConnection();
 
 app.use("/api/v1/user", userRoute);
-app.use("/api/product", productRoute);
+app.use("/api/v1/product", productRoute);
 
 const PORT = process.env.PORT || 3000;
 
