@@ -17,6 +17,9 @@ const ProductSchema = mongoose.Schema({
     type: String,
     required: [true, "Product description is required"],
   },
+  date: {
+    type: Date,
+  },
 });
 
 const Product = mongoose.model("Product", ProductSchema);

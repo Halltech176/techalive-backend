@@ -2,15 +2,19 @@ const Product = require("../MODEL/productModel");
 
 exports.postProduct = async (req, res) => {
   try {
+    const currentDate = new Date().toDateString();
+
     const newProduct = await Product.create({
       name: req.body.name,
       price: req.body.price,
       category: req.body.category,
       description: req.body.description,
+      date: currentDate,
     });
 
     res.status(201).json({
       status: "Successfull",
+      currentDate,
       data: {
         product: newProduct,
       },
@@ -22,7 +26,7 @@ exports.postProduct = async (req, res) => {
 
 exports.getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find();
+    const products = await Product.find().sort({ date: -1 });
 
     res.status(200).json({
       status: "Ok",
