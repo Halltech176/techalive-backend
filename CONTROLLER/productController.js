@@ -2,7 +2,7 @@ const Product = require("../MODEL/productModel");
 
 exports.postProduct = async (req, res) => {
   try {
-    const currentDate = new Date().toDateString();
+    const currentDate = new Date();
 
     const newProduct = await Product.create({
       name: req.body.name,
