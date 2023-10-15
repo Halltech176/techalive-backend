@@ -44,7 +44,7 @@ exports.resizeProductImage = (req, res, next) => {
     .resize(500, 500)
     .toFormat("jpeg")
     .jpeg({ quality: 100 })
-    .toFile(`public/img/products/${req.file.file}`);
+    .toFile(`${req.file.filename}`);
 
   next();
 };
