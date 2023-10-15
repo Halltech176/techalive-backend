@@ -1,10 +1,40 @@
 const Product = require("../MODEL/productModel");
+const multer = require("multer");
+
+const multerStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "public/img/products");
+  },
+  filename: (req, file, cb) => {
+    const extension = file.mimetype.split("/")[1];
+    cb(
+      null,
+      `product-${req.body.name.replace(/ /g, "")}-${Date.now()}.${extension}`
+    );
+  },
+});
+
+const multerFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith("image")) {
+    cb(null, true);
+  } else {
+    cb(new Error("Not an Image"), false);
+  }
+};
+
+const upload = multer({
+  storage: multerStorage,
+  fileFilter: multerFilter,
+});
+
+exports.uploadProductImage = upload.single("image");
 
 exports.postProduct = async (req, res) => {
   try {
     const currentDate = new Date();
 
     const newProduct = await Product.create({
+      image: req.file.filename,
       name: req.body.name,
       price: req.body.price,
       category: req.body.category,
