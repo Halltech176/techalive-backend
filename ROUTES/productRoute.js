@@ -6,6 +6,7 @@ const router = express.Router();
 router.post(
   "/add-product",
   productController.uploadProductImage,
+  productController.resizeProductImage,
   productController.postProduct
 );
 

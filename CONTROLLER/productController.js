@@ -1,5 +1,6 @@
 const Product = require("../MODEL/productModel");
 const multer = require("multer");
+const sharp = require("sharp");
 
 // const multerStorage = multer.diskStorage({
 //   destination: (req, file, cb) => {
@@ -30,6 +31,23 @@ const upload = multer({
 });
 
 exports.uploadProductImage = upload.single("image");
+
+exports.resizeProductImage = (req, res, next) => {
+  if (!req.file) return next();
+
+  req.file.filename = `product-${req.body.name.replace(
+    / /g,
+    ""
+  )}-${Date.now()}.jpeg`;
+
+  sharp(req.file.buffer)
+    .resize(500, 500)
+    .toFormat("jpeg")
+    .jpeg({ quality: 100 })
+    .toFile(`public/img/products/${req.file.file}`);
+
+  next();
+};
 
 exports.postProduct = async (req, res) => {
   try {
