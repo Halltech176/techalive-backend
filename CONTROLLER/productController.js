@@ -44,7 +44,7 @@ exports.resizeProductImage = (req, res, next) => {
     .resize(500, 500)
     .toFormat("jpeg")
     .jpeg({ quality: 100 })
-    .toFile(`${req.file.filename}`);
+    .toFile(`public/img/products/${req.file.filename}`);
 
   next();
 };
@@ -100,5 +100,13 @@ exports.deleteAllProducts = async (req, res) => {
     });
   } catch (error) {
     console.log("Error", error);
+  }
+};
+
+exports.updateProduct = async (req, res) => {
+  try {
+    const product = await Product.findOneAndUpdate();
+  } catch (error) {
+    console.log(error);
   }
 };
