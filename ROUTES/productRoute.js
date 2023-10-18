@@ -6,6 +6,8 @@ const router = express.Router();
 
 router.post(
   "/add-product",
+  authController.protect,
+  authController.restrictTo,
   productController.uploadProductImage,
   productController.resizeProductImage,
   productController.postProduct
