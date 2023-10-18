@@ -7,7 +7,7 @@ const router = express.Router();
 router.post(
   "/add-product",
   authController.protect,
-  authController.restrictTo("admin"),
+  authController.restrictTo("admin, manager"),
   productController.uploadProductImage,
   productController.resizeProductImage,
   productController.postProduct
@@ -22,7 +22,7 @@ router.get(
 router.delete(
   "/delete-products",
   authController.protect,
-  authController.restrictTo("admin"),
+  authController.restrictTo("admin, manager"),
   productController.deleteAllProducts
 );
 
