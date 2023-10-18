@@ -7,7 +7,7 @@ const router = express.Router();
 router.post(
   "/add-product",
   authController.protect,
-  authController.restrictTo,
+  authController.restrictTo("admin"),
   productController.uploadProductImage,
   productController.resizeProductImage,
   productController.postProduct
