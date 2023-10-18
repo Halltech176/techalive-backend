@@ -10,62 +10,89 @@ const signToken = (id) => {
   });
 };
 
-const createSendToken = (user, statusCode, res) => {
-  const token = signToken(user._id);
+exports.signup = async (req, res) => {
+  try {
+    const existingUser = await User.findOne({ email: req.body.email });
 
-  res.cookie("jwt", token, {
-    expires: new Date(
-      Date.now() + process.env.JWT_Cookie_EXPIRES_IN * 24 * 60 * 60 * 1000
-    ),
-    secure: true,
-    httpOnly: true,
-  });
+    if (existingUser) {
+      return res.status(401).json({
+        status: "fail",
+        message: "Email address already exists.",
+      });
+    }
 
-  res.status(statusCode).json({
-    status: "Success",
-    data: {
-      user,
-    },
-  });
+    const newUser = await User.create(
+      // {
+      // name: req.body.name,
+      // email: req.body.email,
+      // password: req.body.password,
+
+      // }
+      req.body
+    );
+
+    const token = signToken(newUser._id);
+
+    res.cookie("jwt", token, {
+      expires: new Date(
+        Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+      ),
+      secure: true,
+      httpOnly: true,
+    });
+
+    res.status(201).json({
+      status: "success",
+      token,
+      data: {
+        user: newUser,
+      },
+    });
+  } catch (error) {
+    console.log("Error: ", error);
+  }
 };
 
-exports.signup = catchAsync(async (req, res, next) => {
-  const existingUser = await User.findOne({ email: req.body.email });
+exports.login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-  if (existingUser) {
-    return res.status(401).json({
-      status: "fail",
-      message: "Email address already exists.",
+    if (!email || !password) {
+      res.status(400).json({
+        status: "Bad Request",
+        message: "Fail",
+      });
+    }
+
+    const user = await User.findOne({ email }).select("+password");
+    // const correct = await user.correctPassword(password, user.password)
+
+    if (!user || !(await user.correctPassword(password, user.password))) {
+      res.status(401).json({
+        status: "Unauthorized",
+        message: "Incorrect email or password",
+      });
+    }
+
+    const token = signToken(user._id);
+
+    res.cookie("jwt", token, {
+      expires: new Date(
+        Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+      ),
+
+      secure: true,
+      httpOnly: true,
     });
-  }
 
-  const newUser = await User.create(req.body);
-
-  createSendToken(newUser, 201, res);
-});
-
-exports.login = catchAsync(async (req, res, next) => {
-  const { email, password } = req.body;
-
-  if (!email || !password) {
-    res.status(400).json({
-      status: "Bad Request",
-      message: "Fail",
+    res.status(200).json({
+      status: "success",
+      token,
     });
+  } catch (error) {
+    console.log(error);
   }
-
-  let user = await User.findOne({ email }).select("+password");
-  // const correct = await user.correctPassword(password, user.password)
-
-  if (!user || !(await user.correctPassword(password, user.password))) {
-    res.status(401).json({
-      status: "Unauthorized",
-      message: "Incorrect email or password",
-    });
-  }
-
-  createSendToken(user, 201, res);
-});
+};
 
 exports.getAllUsers = async (req, res) => {
   try {
