@@ -10,72 +10,62 @@ const signToken = (id) => {
   });
 };
 
-exports.signup = async (req, res) => {
-  try {
-    const existingUser = await User.findOne({ email: req.body.email });
+const createSendToken = (user, statusCode, res) => {
+  const token = signToken(user._id);
 
-    if (existingUser) {
-      return res.status(401).json({
-        status: "fail",
-        message: "Email address already exists.",
-      });
-    }
+  res.cookie("jwt", token, {
+    expires: new Date(
+      Date.now() + process.env.JWT_Cookie_EXPIRES_IN * 24 * 60 * 60 * 1000
+    ),
+    secure: true,
+    httpOnly: true,
+  });
 
-    const newUser = await User.create(
-      // {
-      // name: req.body.name,
-      // email: req.body.email,
-      // password: req.body.password,
-
-      // }
-      req.body
-    );
-
-    const token = signToken(newUser._id);
-
-    res.status(201).json({
-      status: "success",
-      token,
-      data: {
-        user: newUser,
-      },
-    });
-  } catch (error) {
-    console.log("Error: ", error);
-  }
+  res.status(statusCode).json({
+    status: "Success",
+    data: {
+      user,
+    },
+  });
 };
 
-exports.login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
+exports.signup = catchAsync(async (req, res, next) => {
+  const existingUser = await User.findOne({ email: req.body.email });
 
-    if (!email || !password) {
-      res.status(400).json({
-        status: "Bad Request",
-        message: "Fail",
-      });
-    }
-
-    const user = await User.findOne({ email }).select("+password");
-    // const correct = await user.correctPassword(password, user.password)
-
-    if (!user || !(await user.correctPassword(password, user.password))) {
-      res.status(401).json({
-        status: "Unauthorized",
-        message: "Incorrect email or password",
-      });
-    }
-
-    const token = signToken(user._id);
-
-    res.status(200).json({
-      status: "success",
-      token,
+  if (existingUser) {
+    return res.status(401).json({
+      status: "fail",
+      message: "Email address already exists.",
     });
-  } catch (error) {
-    console.log(error);
   }
-};
+
+  const newUser = await User.create(req.body);
+
+  createSendToken(newUser, 201, res);
+});
+
+exports.login = catchAsync(async (req, res, next) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    res.status(400).json({
+      status: "Bad Request",
+      message: "Fail",
+    });
+  }
+
+  let user = await User.findOne({ email }).select("+password");
+  // const correct = await user.correctPassword(password, user.password)
+
+  if (!user || !(await user.correctPassword(password, user.password))) {
+    res.status(401).json({
+      status: "Unauthorized",
+      message: "Incorrect email or password",
+    });
+  }
+
+  createSendToken(user, 201, res);
+});
 
 exports.getAllUsers = async (req, res) => {
   try {
@@ -147,3 +137,21 @@ exports.restrictTo = (...roles) => {
     next();
   };
 };
+
+/*exports.forgotPassword = catchAsync(async (req, res, next) => {
+  const user = await User.findOne({ email: req.body.email });
+
+  if (!user) {
+    return next(
+      res.status(404).json({
+        status: "NOT FOUND",
+        message: "User not found",
+      })
+    );
+  }
+
+  const resetToken = user.createPasswordResetToken();
+  await user.save();
+}); */
+
+// exports.resetPassword = (req, res, next) => {};
