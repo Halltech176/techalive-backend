@@ -192,12 +192,12 @@ exports.isLoggedIn = async (req, res, next) => {
 exports.restrictTo = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
-      return next(
-        res.status(403).json({
-          status: "Forbidden",
-          message: "You can't perform this action",
-        })
-      );
+      res.status(403).json({
+        status: "Forbidden",
+        message: "You can't perform this action",
+      });
+    } else {
+      next();
     }
 
     next();
