@@ -133,6 +133,7 @@ exports.protect = catchAsync(async (req, res, next) => {
   }
 
   if (!token) {
+    res.redirect("/login");
     return next(new AppError("Please login", 401));
   }
 
@@ -149,6 +150,7 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   // 4) Check if the user change the password after token was issued
   if (currentUser.changePasswordAfter(decoded.iat)) {
+    res.redirect("/login");
     return next(
       res.status(401).json({
         status: "Unauthorized",
