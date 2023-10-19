@@ -123,13 +123,13 @@ exports.getAllUsers = async (req, res) => {
 exports.protect = catchAsync(async (req, res, next) => {
   // 1) Get the if the token exist
   let token;
-  if (req.cookies.jwt) {
-    token = req.cookies.jwt;
-  } else if (
+  if (
     req.headers.authorization &&
     req.headers.authorization.startsWith("Bearer")
   ) {
     token = req.headers.authorization.split(" ")[1];
+  } else if (req.cookies.jwt) {
+    token = req.cookies.jwt;
   }
 
   if (!token) {
@@ -195,14 +195,12 @@ exports.isLoggedIn = async (req, res, next) => {
 exports.restrictTo = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
-      res.status(403).json({
+      return res.status(403).json({
         status: "Forbidden",
         message: "You can't perform this action",
       });
-    } else {
-      next();
     }
-
+    // If the user is allowed, continue to the next middleware
     next();
   };
 };
