@@ -10,11 +10,18 @@ const productRoute = require("./ROUTES/productRoute");
 
 const app = express();
 
+// Options
+const allowedOrigin = ["http://localhost:5173"];
+const corsOptions = {
+  origin: allowedOrigin,
+  credentials: true,
+};
+
 // Middlewares
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(bodyParser.json());
-app.use(cookieParser());
 app.use(express.json());
+app.use(cookieParser());
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
 
